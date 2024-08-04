@@ -1,11 +1,14 @@
 package main
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 )
 
@@ -15,6 +18,9 @@ var (
 )
 
 func main() {
+	// Load existing URL mappings from file
+	loadURLMapping()
+
 	http.HandleFunc("/shorten", shortenHandler)
 	http.HandleFunc("/", redirectHandler)
 
@@ -33,9 +39,8 @@ func shortenHandler(w http.ResponseWriter, r *http.Request) {
 
 	mutex.Lock()
 	urlStore[shortURL] = longURL
-	mutex.Unlock()
-
 	saveURLMapping()
+	mutex.Unlock()
 
 	w.Write([]byte(fmt.Sprintf("Short URL: http://localhost:8080/%s", shortURL)))
 }
@@ -56,8 +61,9 @@ func redirectHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func generateShortURL(longURL string) string {
-	// Implement a method to generate a short URL, like using a hash or a counter
-	return fmt.Sprintf("%x", len(longURL)) // Simplified example
+	hash := sha1.New()
+	hash.Write([]byte(longURL))
+	return hex.EncodeToString(hash.Sum(nil))[:8] // Use the first 8 characters of the hash
 }
 
 func saveURLMapping() {
@@ -74,7 +80,17 @@ func saveURLMapping() {
 }
 
 func loadURLMapping() {
-	data, err := ioutil.ReadFile("urls.json")
+	file, err := os.Open("urls.json")
+	if err != nil {
+		if os.IsNotExist(err) {
+			return
+		}
+		log.Println("Error opening file:", err)
+		return
+	}
+	defer file.Close()
+
+	data, err := ioutil.ReadAll(file)
 	if err != nil {
 		log.Println("Error reading file:", err)
 		return
