@@ -21,6 +21,7 @@ func LoadTemplates(c config.Configuration) (err error) {
 			t.Funcs(map[string]interface{}{
 				"body":   func() string { return "" },
 				"layout": func() string { return "" },
+				"handler": func() interface{} { return "" },
 			})
 			t, err = t.ParseGlob(path)
 			return

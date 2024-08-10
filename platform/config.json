@@ -11,5 +11,9 @@
     "templates": {
         "path": "placeholder/*.html",
         "reload": true
+    },
+    "sessions": {
+        "key": "MY_SESSION_KEY",
+        "cyclekey": true
     }
 }
