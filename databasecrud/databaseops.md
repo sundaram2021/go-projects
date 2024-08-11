@@ -3,3 +3,6 @@
 
 ## cmd 2 : TO read a table
 ```./sqlite3 names.db "select * from Names"```
+
+## Transaction features:
+![alt text](image.png)
