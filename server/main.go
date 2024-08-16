@@ -4,199 +4,104 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
-	"strings"
+	"reflect"
+
+	"github.com/gorilla/mux"
 )
 
-type User struct {
-	Id   uint64
-	Name string
+type Authentication struct {
+	password string `json:password`
+	salt string `json:salt`
+	sessionToken string `json:sessionToken`
+}
+type UserLogin struct {
+	id int32 `json:id`
+	name string `json:name`
+	authentication Authentication
 }
 
-var Users []User
 
-func createUserFunc(id uint64, name string) User {
-	usr := User{
-		Id:   id,
-		Name: name,
-	}
-
-	Users = append(Users, usr)
-
-	return usr
+type UserRegister struct {
+	id int32 `json:id`
+	name string `json:name`
+	password string `json:password`
+	
 }
 
-func getUserFunc(id uint64) User {
-	var usr User
+var LoggedUsers []UserLogin
+var RegisteredUsers []UserRegister
 
-	for _, ele := range Users {
-		if ele.Id == id {
-			usr = ele
-			break
-		}
-	}
-
-	return usr
-}
-
-func deleteUserFunc(id uint64) User {
-	var usr User
-
-	for i, ele := range Users {
-		if ele.Id == id {
-			usr = Users[i]
-			Users = append(Users[:i], Users[i+1:]...)
-			break
-		}
-	}
-
-	return usr
-}
-
-func updateUserFunc(usr User) User {
-	var usr2 User
-
-	for i, ele := range Users {
-		if ele.Id == usr.Id { // Corrected this line
-			Users[i] = usr
-			usr2 = Users[i]
-			break
-		}
-	}
-
-	return usr2
-}
 
 func respondWithError(w http.ResponseWriter, statusCode int, message string) {
 	w.WriteHeader(statusCode)
 	fmt.Fprintf(w, "Message: %v", message)
 }
 
-func rootHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		respondWithError(w, http.StatusBadRequest, "Error, Bad Request")
-		return
-	}
-	respondWithError(w, http.StatusOK, "Hello, welcome to the server")
+func rootHandler(w http.ResponseWriter, r *http.Request){
+	fmt.Fprintf(w, "Welcome to gorilla mux , URL : %v", r.RequestURI)
 }
 
-func createUser(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		var newUser User
+func numHandler(w http.ResponseWriter, r *http.Request){
+	vars := mux.Vars(r)
 
-		err := json.NewDecoder(r.Body).Decode(&newUser)
-		if err != nil {
-			respondWithError(w, http.StatusBadRequest, "Invalid request payload")
-			return
-		}
-
-		if newUser.Id == 0 || newUser.Name == "" {
-			respondWithError(w, http.StatusNoContent, "ID or name is missing")
-			return
-		}
-
-		createUserFunc(newUser.Id, newUser.Name)
-
-		respondWithError(w, http.StatusCreated, "User created successfully")
-		return
-	}
-	respondWithError(w, http.StatusBadRequest, "Bad Request")
+	fmt.Fprintf(w, "Requested Number is : %v", vars["num"])
 }
 
-func getAllUser(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		err := json.NewEncoder(w).Encode(Users)
-		if err != nil {
-			respondWithError(w, http.StatusBadGateway, "Encoding error")
-			return
-		}
-		return
-	}
-	respondWithError(w, http.StatusBadRequest, "Bad Request")
+func queryHandler(w http.ResponseWriter, r *http.Request){
+	queryParams := r.URL.Query()
+
+	query := queryParams.Get("query")
+
+	fmt.Fprintf(w, "Query parameter is : %v", query)
 }
 
-func deleteUser(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodDelete {
-		var usr User
-
-		err := json.NewDecoder(r.Body).Decode(&usr)
-		if err != nil {
-			respondWithError(w, http.StatusBadRequest, "Invalid request payload")
-			return
-		}
-
-		for _, ele := range Users {
-			if ele.Id == usr.Id {
-				deleteUserFunc(ele.Id)
-				respondWithError(w, http.StatusOK, "User deleted successfully")
-				return
-			}
-		}
-
-		respondWithError(w, http.StatusNotFound, "User not found")
-		return
-	}
-	respondWithError(w, http.StatusBadRequest, "Bad Request")
-}
-
-func updateUser(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPut {
-		var usr User
-
-		err := json.NewDecoder(r.Body).Decode(&usr)
-		if err != nil {
-			respondWithError(w, http.StatusBadRequest, "Invalid request payload")
-			return
-		}
-
-		updatedUser := updateUserFunc(usr)
-		if updatedUser.Id == 0 {
-			respondWithError(w, http.StatusNotFound, "User not found")
+func RouteMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if len(r.URL.Query()) > 0 {
+			queryHandler(w, r)
 		} else {
-			respondWithError(w, http.StatusOK, "User updated successfully")
+			next.ServeHTTP(w, r)
 		}
-		return
-	}
-	respondWithError(w, http.StatusBadRequest, "Bad Request")
+	})
 }
 
-func getUser(w http.ResponseWriter, r *http.Request) {
-    if r.Method == http.MethodGet {
-        // Extract the path segment to get the ID
-		pathParts := strings.Split(r.URL.Path, "/")
-		if len(pathParts) < 3 || pathParts[2] == "" {
-			respondWithError(w, http.StatusBadRequest, "ID is missing in URL path")
-			return
-		}
+func registerHandler(w http.ResponseWriter, r *http.Request){
+	var data UserRegister
 
-		// Convert the ID from string to uint64
-		idStr := pathParts[2]
-		id, err := strconv.ParseUint(idStr, 10, 64)
-		if err != nil {
-			respondWithError(w, http.StatusBadRequest, "Invalid ID format")
-			return
-		}
+	err:= json.NewDecoder(r.Body).Decode(&data)
 
-        // Fetch the user with the given ID
-        user := getUserFunc(id)
-        if user.Id == 0 {
-            respondWithError(w, http.StatusNotFound, "User not found")
-            return
-        }
-    }
+	if err != nil {
+		respondWithError(w, http.StatusBadGateway, "json encoding error while registering")
+	}
 
-    respondWithError(w, http.StatusBadRequest, "Bad Request")
+	RegisteredUsers = append(RegisteredUsers, data)
+	w.WriteHeader(http.StatusCreated)
+	fmt.Fprintf(w, "User is registered %v", data)
+}
+
+func loginHandler(w http.ResponseWriter, r *http.Request){
+	var data reflect.Type
+
+	err := json.NewDecoder(r.Body).Decode(&data)
+
+	if err != nil {
+		respondWithError(w, http.StatusBadGateway, "error in json encoding while logging")
+	}
+	LoggedUsers = append(LoggedUsers, data)
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "User is logged in %v", data.name)
 }
 
 func main() {
-	r := http.NewServeMux()
+	
+	mux := mux.NewRouter()
 
-	r.HandleFunc("/", rootHandler)
-	r.HandleFunc("/create", createUser)
-	r.HandleFunc("/getAllUser", getAllUser)
-    r.HandleFunc("/getUser/{id}", getUser)
-	r.HandleFunc("/deleteUser", deleteUser)
-	r.HandleFunc("/updateUser", updateUser)
+	mux.Handle("/" , RouteMiddleware(http.HandlerFunc(rootHandler))).Methods("GET").Schemes("http")
+	mux.HandleFunc("/{num}", numHandler).Methods("GET").Schemes("http")
+	mux.Handle("/", RouteMiddleware(http.HandlerFunc(queryHandler))).Methods("GET").Schemes("http")
+	mux.HandleFunc("/login", loginHandler).Methods("POST").Schemes("http")
+	mux.HandleFunc("/register", registerHandler).Methods("POST").Schemes("http")
+	fmt.Println("Mux Server is running on port 8080...") 
+	http.ListenAndServe(":8080", mux)
 
-	http.ListenAndServe(":80", r)
 }
