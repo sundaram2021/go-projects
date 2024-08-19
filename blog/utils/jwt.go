@@ -32,7 +32,7 @@ func GenerateJWT(username string) (string, error) {
 	}
 	return tokenString, nil
 }
-
+//  SigningMethodHS256
 // ValidateJWT parses and validates a JWT token
 func ValidateJWT(tokenString string) (*Claims, error) {
 	claims := &Claims{}

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"blog/middlewares"
 	"fmt"
 	"net/http"
 
@@ -28,6 +29,8 @@ func GetBlogById(c *gin.Context) {
 		})
 		return
 	}
+
+	middlewares.AdminMiddleware(c)
 
 	for _, ele := range Blogs {
 		if ele.Id == id {

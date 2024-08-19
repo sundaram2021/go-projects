@@ -1,9 +1,12 @@
 package handlers
 
 import (
-	"blog/utils"
+	// "blog/routes"
+	// "blog/utils"
+	// "fmt"
+	"blog/middlewares"
 	"net/http"
-	"time"
+	_ "time"
 
 	// "blog/routes"
 	"github.com/gin-contrib/sessions"
@@ -17,43 +20,7 @@ type User struct {
 	Name string `json:name`
 }
 
-func AuthMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		session := sessions.Default(c)
-		token := session.Get("blog_api")
 
-		if token == nil {
-			c.JSON(http.StatusForbidden, gin.H{
-				"error": "sign in please",
-			})
-			c.Abort()
-		}
-		c.Next()
-	}
-}
-
-func AdminMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		tokenString, err := c.Cookie("admin_token")
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "no token found"})
-			c.Abort()
-			return
-		}
-
-		claims, err := utils.ValidateJWT(tokenString)
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
-			c.Abort()
-			return
-		}
-
-		// Add claims to context, so they can be accessed in handlers
-		c.Set("username", claims.Username)
-
-		c.Next()
-	}
-}
 
 func SignInHandler(c *gin.Context) {
 	var user User
@@ -65,30 +32,10 @@ func SignInHandler(c *gin.Context) {
 		return
 	}
 
-	// if user.Name == "user22" {
-	// 	store := cookie.NewStore([]byte("blogsecret"))
-	// 	store.Options(sessions.Options{
-	// 		Path:     "/",
-	// 		Domain:   "http://localhost:8080", // Adjust to your domain
-	// 		MaxAge:   3600 * 2,          // 8 hours
-	// 		HttpOnly: true,
-	// 		SameSite: http.SameSiteLaxMode,
-	// 	})
-	// 	routes.Use(sessions.Sessions("blog_api", store))
-	// }
-
-	// Generate JWT
 	if user.Name == "sundaram" {
-		tokenStr, err := utils.GenerateJWT(user.Name)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "could not generate token"})
-			return
-		}
-
-		// Set token in response cookie
-		c.SetCookie("admin_token", tokenStr, int((time.Hour * 24).Seconds()), "/", "localhost", false, true)
-
+		middlewares.SetAdminToken()
 	}
+
 
 	tokenString := xid.New().String()
 	session := sessions.Default(c)

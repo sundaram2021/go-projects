@@ -2,6 +2,7 @@ package routes
 
 import (
 	"blog/handlers"
+	"blog/middlewares"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -31,13 +32,13 @@ func SetupRouter() *gin.Engine {
 	router.GET("/signout", handlers.SignOutHandler)
 
 	authorize := router.Group("/")
-	authorize.Use(handlers.AuthMiddleware())
+	authorize.Use(middlewares.AuthMiddleware())
 	{
 		authorize.GET("/blogs", handlers.GetAllBlogs)
 		authorize.GET("/blogs/:id", handlers.GetBlogById)
-		authorize.POST("blogs", handlers.CreateBlog)
-		authorize.PUT("/blogs/:id", handlers.UpadateBlog)
-		authorize.DELETE("/blogs/:id",handlers.AdminMiddleware(), handlers.DeleteBlog)
+		authorize.POST("/blogs", handlers.CreateBlog)
+		authorize.PUT("/blogs/:id",handlers.UpadateBlog)
+		authorize.DELETE("/blogs/:id", handlers.DeleteBlog)
 	}
 
 	return router
