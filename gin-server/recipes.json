@@ -1,0 +1,38 @@
+[
+    {
+      "item": "Margherita Pizza",
+      "recipe": "Tomato sauce, mozzarella cheese, fresh basil, olive oil",
+      "price": 8.99
+    },
+    {
+      "item": "Caesar Salad",
+      "recipe": "Romaine lettuce, Caesar dressing, croutons, parmesan cheese, grilled chicken",
+      "price": 7.49
+    },
+    {
+      "item": "Spaghetti Carbonara",
+      "recipe": "Spaghetti, pancetta, eggs, Parmesan cheese, black pepper, garlic",
+      "price": 11.99
+    },
+    {
+      "item": "Chicken Tikka Masala",
+      "recipe": "Chicken breast, yogurt, tomato sauce, cream, spices (garam masala, cumin, coriander), garlic, ginger",
+      "price": 13.99
+    },
+    {
+      "item": "Vegetable Stir Fry",
+      "recipe": "Mixed vegetables (broccoli, bell peppers, snap peas), soy sauce, ginger, garlic, sesame oil",
+      "price": 9.99
+    },
+    {
+      "item": "Beef Tacos",
+      "recipe": "Ground beef, taco seasoning, lettuce, tomato, cheddar cheese, sour cream, flour tortillas",
+      "price": 10.49
+    },
+    {
+      "item": "Mushroom Risotto",
+      "recipe": "Arborio rice, mushrooms, chicken broth, white wine, parmesan cheese, onions, garlic, butter",
+      "price": 12.49
+    }
+  ]
+  
