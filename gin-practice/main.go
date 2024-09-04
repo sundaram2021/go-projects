@@ -1,40 +1,50 @@
 package main
 
 import (
+	"log"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
 )
 
-// Define a struct to bind form data
-type MyForm struct {
-	Colors []string `form:"colors[]"` // Specify the form tag for checkbox binding
+type Person struct {
+	Name    string `form:"name" json:"name"`
+	Address string `form:"address" json:"address"`
 }
 
 func main() {
-	// Initialize a new Gin router
-	router := gin.Default()
-
-	// Serve the HTML form
-	router.GET("/", func(c *gin.Context) {
+	route := gin.Default()
+	route.LoadHTMLFiles("form.html") // Load the HTML file
+	route.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "form.html", nil)
 	})
+	route.POST("/submit", getName)
+	route.GET("/testing", startPage)
+	route.Run(":8085")
+}
 
-	// Handle form submission
-	router.POST("/submit", func(c *gin.Context) {
-		var form MyForm
-		// Bind the form data to the struct
-		if err := c.ShouldBind(&form); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+func getName(c *gin.Context) {
+	var person Person
+	if c.ShouldBind(&person) == nil {
+		log.Println("-----binding html-------")
+		log.Println("name : " + person.Name)
+	}
+	c.String(http.StatusOK, "success")
+}
 
-		// Respond with the received data
-		c.JSON(http.StatusOK, gin.H{"selected_colors": form.Colors})
-	})
+func startPage(c *gin.Context) {
+	var person Person
+	if c.BindQuery(&person) == nil {
+		log.Println("====== Bind By Query String ======")
+		log.Println(person.Name)
+		log.Println(person.Address)
+	}
 
-	// Load HTML templates
-	router.LoadHTMLFiles("form.html")
+	if c.BindJSON(&person) == nil {
+		log.Println("====== Bind By JSON ======")
+		log.Println(person.Name)
+		log.Println(person.Address)
+	}
 
-	// Run the server
-	router.Run(":8080")
+	c.String(http.StatusOK, "Success")
 }
