@@ -1,47 +1,35 @@
 package main
 
 import (
-	"net/http"
+	"log"
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
-	"github.com/go-playground/validator/v10"
 )
 
-// Booking contains binded and validated data.
-type Booking struct {
-	CheckIn  time.Time `form:"check_in" binding:"required,bookabledate" time_format:"2006-01-02"`
-	CheckOut time.Time `form:"check_out" binding:"required,gtfield=CheckIn,bookabledate" time_format:"2006-01-02"`
-}
-
-var bookableDate validator.Func = func(fl validator.FieldLevel) bool {
-	date, ok := fl.Field().Interface().(time.Time)
-	if ok {
-		today := time.Now()
-		if today.After(date) {
-			return false
-		}
-	}
-	return true
-}
-
 func main() {
-	route := gin.Default()
+	r := gin.Default()
 
-	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		v.RegisterValidation("bookabledate", bookableDate)
-	}
+	r.GET("/long_async", func(c *gin.Context) {
+		// create copy to be used inside the goroutine
+		cCp := c.Copy()
+		go func() {
+			// simulate a long task with time.Sleep(). 5 seconds
+			time.Sleep(5 * time.Second)
 
-	route.GET("/bookable", getBookable)
-	route.Run(":8085")
-}
+			// note that you are using the copied context "cCp", IMPORTANT
+			log.Println("Done! in path " + cCp.Request.URL.Path)
+		}()
+	})
 
-func getBookable(c *gin.Context) {
-	var b Booking
-	if err := c.ShouldBindWith(&b, binding.Query); err == nil {
-		c.JSON(http.StatusOK, gin.H{"message": "Booking dates are valid!"})
-	} else {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-	}
+	r.GET("/long_sync", func(c *gin.Context) {
+		// simulate a long task with time.Sleep(). 5 seconds
+		time.Sleep(5 * time.Second)
+
+		// since we are NOT using a goroutine, we do not have to copy the context
+		log.Println("Done! in path " + c.Request.URL.Path)
+	})
+
+	// Listen and serve on 0.0.0.0:8080
+	r.Run(":8080")
 }
