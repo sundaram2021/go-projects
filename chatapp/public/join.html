@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chat Application - Join Room</title>
+  <link rel="stylesheet" href="static/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to the Chat App</h1>
+    <form onsubmit="storeUserData(); return false;">
+      <input type="text" id="username" placeholder="Enter your name" required />
+      <input type="text" id="roomId" placeholder="Enter room ID" required />
+      <button type="submit">Join Chat</button>
+    </form>
+    <div class="rooms-section">
+      <h2>Active Rooms</h2>
+      <ul id="roomsList"></ul>
+      <p class="note">Note: You must enter the Room ID to join.</p>
+    </div>
+  </div>
+
+  <script>
+    function storeUserData() {
+      localStorage.setItem('username', document.getElementById('username').value);
+      localStorage.setItem('roomId', document.getElementById('roomId').value);
+      window.location.href = 'interface.html';
+    }
+
+    // Fetch active rooms and display them
+    fetch('/api/rooms')
+      .then(response => response.json())
+      .then(data => {
+        const roomsList = document.getElementById('roomsList');
+        data.rooms.forEach(room => {
+          const listItem = document.createElement('li');
+          listItem.textContent = room;
+          roomsList.appendChild(listItem);
+        });
+      })
+      .catch(error => console.error('Error fetching rooms:', error));
+  </script>
+</body>
+</html>

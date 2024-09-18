@@ -1,0 +1,112 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f9;
+  }
+  
+  .container {
+    max-width: 500px;
+    margin: 50px auto;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  .container h1 {
+    margin-bottom: 30px;
+  }
+  
+  .container form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .container input,
+  .container button {
+    padding: 10px;
+    margin: 5px 0;
+    font-size: 16px;
+  }
+  
+  .container button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .rooms-section {
+    margin-top: 30px;
+    text-align: left;
+  }
+  
+  .rooms-section h2 {
+    margin-bottom: 10px;
+  }
+  
+  .rooms-section ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .rooms-section li {
+    padding: 5px 0;
+  }
+  
+  .rooms-section .note {
+    font-size: 14px;
+    color: #777;
+  }
+  
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
+    text-align: center;
+  }
+  
+  .chatbox {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #fff;
+  }
+  
+  .message {
+    margin: 10px 0;
+  }
+  
+  .message strong {
+    color: #333;
+  }
+  
+  .system-message {
+    color: #777;
+    font-style: italic;
+  }
+  
+  .input-container {
+    display: flex;
+    border-top: 1px solid #ddd;
+  }
+  
+  .input-container input {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    font-size: 16px;
+  }
+  
+  .input-container button {
+    padding: 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  

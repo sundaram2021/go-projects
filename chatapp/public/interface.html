@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Chat Room</title>
+    <link rel="stylesheet" href="static/styles.css" />
+  </head>
+  <body>
+    <div class="chat-container">
+      <header>
+        <h2 id="roomTitle"></h2>
+      </header>
+      <div id="chatbox" class="chatbox"></div>
+      <div class="input-container">
+        <input type="text" id="myinput" placeholder="Type a message" />
+        <button onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+
+    <script>
+      const username = localStorage.getItem("username") || "Anonymous";
+      const roomId = localStorage.getItem("roomId") || "defaultRoom";
+      document.getElementById("roomTitle").textContent = "Room: " + roomId;
+
+      const ws = new WebSocket(
+        `ws://${location.host}/ws?roomId=${encodeURIComponent(
+          roomId
+        )}&username=${encodeURIComponent(username)}`
+      );
+
+      ws.onmessage = function (event) {
+        const message = JSON.parse(event.data);
+        const chatbox = document.getElementById("chatbox");
+        const newMessage = document.createElement("div");
+        newMessage.className = "message";
+        newMessage.innerHTML = `<strong>${message.username}:</strong> ${message.content}`;
+        if (message.system) {
+          newMessage.classList.add("system-message");
+        }
+        chatbox.appendChild(newMessage);
+        chatbox.scrollTop = chatbox.scrollHeight;
+      };
+
+      function sendMessage() {
+        const input = document.getElementById("myinput");
+        if (input.value.trim() === "") return;
+        const message = {
+          username: username,
+          content: input.value,
+          roomId: roomId,
+        };
+        ws.send(JSON.stringify(message));
+        input.value = "";
+      }
+    </script>
+  </body>
+</html>
