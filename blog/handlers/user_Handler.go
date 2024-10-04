@@ -1,16 +1,11 @@
 package handlers
 
 import (
-	// "blog/routes"
-	// "blog/utils"
-	// "fmt"
 	"blog/middlewares"
 	"net/http"
 	_ "time"
 
-	// "blog/routes"
 	"github.com/gin-contrib/sessions"
-	// "github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/xid"
 )
@@ -19,8 +14,6 @@ type User struct {
 	Id   string `json:id`
 	Name string `json:name`
 }
-
-
 
 func SignInHandler(c *gin.Context) {
 	var user User
@@ -35,7 +28,6 @@ func SignInHandler(c *gin.Context) {
 	if user.Name == "sundaram" {
 		middlewares.SetAdminToken()
 	}
-
 
 	tokenString := xid.New().String()
 	session := sessions.Default(c)

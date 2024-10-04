@@ -17,11 +17,13 @@ type Blog struct {
 var Blogs []Blog
 
 func GetAllBlogs(c *gin.Context) {
+	middlewares.AuthMiddleware()
 	c.JSON(http.StatusOK, Blogs)
 }
 
 func GetBlogById(c *gin.Context) {
 	id := c.Param("id")
+	middlewares.AuthMiddleware()
 
 	if id == "" {
 		c.JSON(http.StatusNotFound, gin.H{
@@ -30,7 +32,6 @@ func GetBlogById(c *gin.Context) {
 		return
 	}
 
-	middlewares.AdminMiddleware(c)
 
 	for _, ele := range Blogs {
 		if ele.Id == id {
@@ -42,7 +43,6 @@ func GetBlogById(c *gin.Context) {
 	c.JSON(http.StatusNotFound, gin.H{
 		"error": fmt.Sprintf("Blog with %s not found", id),
 	})
-	// return
 }
 
 func CreateBlog(c *gin.Context){
@@ -54,6 +54,9 @@ func CreateBlog(c *gin.Context){
 		})
 		return
 	}
+
+	middlewares.AuthMiddleware()
+
 
 	Blogs = append(Blogs, blog)
 	c.JSON(http.StatusOK, gin.H{
@@ -70,6 +73,9 @@ func UpadateBlog(c *gin.Context) {
 		})
 		return
 	}
+
+	middlewares.AuthMiddleware()
+
 
 	var blog Blog
 
@@ -103,6 +109,9 @@ func DeleteBlog(c *gin.Context) {
 		})
 		return
 	}
+	middlewares.AuthMiddleware()
+	middlewares.AdminMiddleware(c)
+
 
 	for i, ele := range Blogs {
 		if ele.Id == id {
