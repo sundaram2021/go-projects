@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        project: [bookstore-api, chatapp, databasescrud, fileserver, gin-practice, gin-server, ginnn, ginnn2, github-client-go, jsontoxecelconverter, nutrition-calculator, online-compiler, platform, postman-clone, quiz-cli, restful, server, server2, server3, sportsstore, task_processor, todoapp, url-shortener, users]
+        project: [blog, bookstore-api, chatapp, databasecrud, fileserver, gin-practice, gin-server, ginnn, ginnn2, github-client-go, jsontoexcelconverter, nutrition-calculator, online-compiler, platform, postman-clone, quiz-cli, restful, server, server2, server3, std-server, sportsstore, task_processor, todoapp, url-shortener, users]
     steps:
       - name: Set up Go ${{ env.GO_VERSION }}
         uses: actions/setup-go@v4
