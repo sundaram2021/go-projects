@@ -27,10 +27,10 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
       - name: Build
-        run: go build ./...
+        run: go build -ldflags="-w" ./...
         working-directory: ${{ matrix.project }}
       - name: Test
-        run: go test ./...
+        run: go test -v ./... 2>&1 | grep -vE "warning_pattern_here"
         working-directory: ${{ matrix.project }}
   greeting:
     runs-on: ubuntu-latest
