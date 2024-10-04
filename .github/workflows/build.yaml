@@ -16,6 +16,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [bookstore-api, chatapp, databasescrud, fileserver, gin-practice, gin-server, ginnn, ginnn2, github-client-go, jsontoxecelconverter, nutrition-calculator, online-compiler, platform, postman-clone, quiz-cli, restful, server, server2, server3, sportsstore, task_processor, todoapp, url-shortener, users]
     steps:
       - name: Set up Go ${{ env.GO_VERSION }}
         uses: actions/setup-go@v4
@@ -25,8 +28,10 @@ jobs:
         uses: actions/checkout@v4
       - name: Build
         run: go build ./...
+        working-directory: ${{ matrix.project }}
       - name: Test
         run: go test ./...
+        working-directory: ${{ matrix.project }}
   greeting:
     runs-on: ubuntu-latest
     permissions:
