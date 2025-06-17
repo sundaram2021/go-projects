@@ -63,4 +63,4 @@ Thank you for your interest in contributing to our project! We welcome contribut
 - **Code of Conduct**:
   - Please adhere to the Github code of conduct .
 
-Thank you for contributing to our project! Your efforts help improve the software and foster a welcoming community. If you have any questions, feel free to reach out to the project maintainers.
+Thank you for contributing to our project! 
